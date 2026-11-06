@@ -28,7 +28,7 @@ function buildRing(radius,width,window,provider,index){
  group.append(track,fill,hit);return group;
 }
 function render(data){
- current=data;container.replaceChildren();
+ current=data;applyAppearance(data.options);fitPanel();container.replaceChildren();
  for(const provider of data.providers){
   const connected=provider.status==='connected',windows=provider.windows||[],main=chosen(provider),triple=provider.id==='command';
   const column=el('section',`provider${connected?'':' offline'}`);column.dataset.provider=provider.id;
@@ -54,6 +54,13 @@ function render(data){
 document.getElementById('refresh').addEventListener('click',()=>window.quota.refresh());
 document.getElementById('settings').addEventListener('click',()=>window.quota.settings());
 document.getElementById('hide').addEventListener('click',()=>window.quota.hide());
+function fitPanel(){
+ const width=82+235*(current?.providers.length||2),surface=document.querySelector('.glass');
+ surface.style.width=width+'px';surface.style.transform=`scale(${innerWidth/width},${innerHeight/414})`;
+}
+function applyAppearance(options){document.documentElement.style.setProperty('--glass-density',String(1-(options.transparency??0.55)));}
+window.addEventListener('resize',fitPanel);fitPanel();
+window.quota.onAppearance(applyAppearance);
 window.quota.onUpdate(render);window.quota.get().then(render);
 // Keep all native hit tests in the client area. Only blank/header pointer drags move the HWND.
 let dragging=false;

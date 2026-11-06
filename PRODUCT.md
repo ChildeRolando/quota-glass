@@ -21,7 +21,9 @@ A persistent, draggable, always-on-top quota panel, visually reproducing the sup
 - Keep the default arrow cursor; communicate hover through brightness. Center text is display-only and must not open settings or change periods.
 - Outside the panel's rounded corners must be transparent, with no extra native grey rectangle. The panel must visibly transmit and blur the desktop behind it.
 - Glossy, polished glass with restrained reflections and lighter haze. Compact footer; provider titles match selected ring brightness. All unselected rings share one brightness.
-- Panel size is adjusted continuously with a 60%–140% slider.
+- Panel size follows slider input continuously at 60%–140%, with Windows native edge resizing and automatic persistence.
+- Tray menu has only Show (visibility toggle), Pin, Settings and Quit.
+- Glass transparency is adjustable from 20% to 90%; text and rings remain clear.
 - Read-only account access. No model calls, purchases, resets, sign-outs, or login changes.
 
 ## Brand Commitments

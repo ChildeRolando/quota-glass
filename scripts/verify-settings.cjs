@@ -10,7 +10,8 @@ const assert=require('node:assert/strict');
    await app.evaluate(({app})=>{
     global.settingsTrace=[];
     app.on('browser-window-created',(_,win)=>{
-     const trace={createdVisible:win.isVisible(),painted:false,shownBeforePaint:false,closed:false,crashed:false};global.settingsTrace.push(trace);
+     const trace={createdVisible:win.isVisible(),painted:false,shownBeforePaint:false,closed:false,crashed:false,events:[]};global.settingsTrace.push(trace);
+     for(const event of ['show','hide','minimize','restore','focus','blur','closed'])win.on(event,()=>trace.events.push(event));
      win.prependListener('ready-to-show',()=>{trace.painted=true;});
      win.on('show',()=>{if(!trace.painted)trace.shownBeforePaint=true;});
      win.on('closed',()=>{trace.closed=true;});
@@ -34,7 +35,7 @@ const assert=require('node:assert/strict');
     // A second click while already open reuses the same window.
     await panel.evaluate(()=>window.quota.settings());assert.equal((await app.windows()).length,2);
     await new Promise(r=>setTimeout(r,1500));result=await inspect();
-    assert.equal(result.visible,true);assert.equal(result.trace.closed,false);assert.equal(result.trace.crashed,false);
+    assert.equal(result.visible,true,JSON.stringify({top,opening,...result}));assert.equal(result.trace.closed,false);assert.equal(result.trace.crashed,false);
     // Restore a minimized settings window instead of leaving it on the taskbar.
     await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle().includes('设置')).minimize());
     await panel.evaluate(()=>window.quota.settings());

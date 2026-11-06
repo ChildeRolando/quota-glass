@@ -1,5 +1,5 @@
 'use strict';
-let scaleTimer=null;
+const activeSliders=new Set();
 function render(data){
  const root=document.getElementById('connections');root.replaceChildren();
  for(const p of data.providers){
@@ -16,10 +16,7 @@ function render(data){
  document.getElementById('startup').checked=Boolean(data.startup?.enabled);
  document.getElementById('startup').disabled=!data.startup?.available;
  document.getElementById('startup-note').textContent=data.startup?.error||(data.startup?.available?'登录 Windows 后自动显示面板':'开机启动仅在正式版中可用，验证模式不修改系统启动项');
- if(scaleTimer===null&&document.activeElement!==document.getElementById('scale')){
-  document.getElementById('scale').value=String(data.options.scale);
-  document.getElementById('scale-value').textContent=Math.round(data.options.scale*100)+'%';
- }
+ renderAppearance(data.options);
  document.getElementById('refresh').disabled=data.busy;
  document.getElementById('status').textContent=freshness(data);
 }
@@ -30,8 +27,28 @@ document.getElementById('startup').addEventListener('change',async event=>{
  try{render(await window.quota.setOption('startup',input.checked));}
  catch{render(await window.quota.get());document.getElementById('startup-note').textContent='无法修改开机启动，请重试';}
 });
-const scale=document.getElementById('scale');
-function applyScale(){clearTimeout(scaleTimer);scaleTimer=null;window.quota.setOption('scale',Number(scale.value));}
-scale.addEventListener('input',()=>{document.getElementById('scale-value').textContent=Math.round(Number(scale.value)*100)+'%';clearTimeout(scaleTimer);scaleTimer=setTimeout(applyScale,80);});
-scale.addEventListener('change',applyScale);
+function renderAppearance(options){
+ for(const key of ['scale','transparency'])if(!activeSliders.has(key)){
+  document.getElementById(key).value=String(options[key]);
+  document.getElementById(key+'-value').textContent=Math.round(options[key]*100)+'%';
+ }
+}
+for(const key of ['scale','transparency']){
+ const input=document.getElementById(key);
+ input.addEventListener('pointerdown',()=>activeSliders.add(key));
+ input.addEventListener('input',()=>{
+  activeSliders.add(key);const value=Number(input.value);
+  document.getElementById(key+'-value').textContent=Math.round(value*100)+'%';
+  window.quota.previewOption(key,value);
+ });
+ const commit=()=>{
+  if(!activeSliders.has(key))return;
+  activeSliders.delete(key);
+  window.quota.setOption(key,Number(input.value));
+ };
+ input.addEventListener('change',commit);
+ input.addEventListener('pointerup',()=>{if(activeSliders.has(key))commit();});
+ input.addEventListener('pointercancel',()=>{if(activeSliders.has(key))commit();});
+}
+window.quota.onAppearance(renderAppearance);
 window.quota.onUpdate(render);window.quota.get().then(render);

@@ -32,6 +32,11 @@ class GlassHelper {
         }
         return 0;
       }
+      if(args.Length==3 && args[2]=="--edgecheck") {
+        int x=rect.Right-2,y=rect.Top+height/2;
+        long packed=((y&65535)<<16)|(x&65535);
+        return SendMessage(window,0x84,IntPtr.Zero,new IntPtr(packed)).ToInt64()==11?0:9;
+      }
       if(args.Length==3 && args[2]=="--check") {
         IntPtr probe=CreateRectRgn(0,0,0,0);
         try {return GetWindowRgn(window,probe)>0 && !PtInRegion(probe,0,0) && !PtInRegion(probe,10,10) && PtInRegion(probe,width/2,height/2)?0:7;}

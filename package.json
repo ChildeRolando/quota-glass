@@ -10,6 +10,7 @@
     "test": "node --test test/*.test.cjs",
     "verify": "node scripts/verify.cjs",
     "verify:settings": "node scripts/verify-settings.cjs",
+    "verify:appearance": "node scripts/verify-appearance.cjs",
     "package": "node scripts/package.cjs"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@
 Visual authority: user's screenshot. Operate mode. No new visual identity is being invented.
 
 Reference panel: approximately 1020 x 480 for four providers; circle diameter 198, header size 34, main figure 56, cycle 26, countdown 30. Horizontal pitch 235.
-Two-provider version: 552 x 414; centers 159 and 394; preserve header and circle anchors while reducing space below the countdown. Default desktop scale is 80%, with a continuous 60–140% slider in settings, in 1% steps.
+Two-provider version: 552 x 414; centers 159 and 394; preserve header and circle anchors while reducing space below the countdown. Default desktop scale is 80%, with a continuous 60–140% slider in settings, without fixed percentage steps; native edge resizing preserves the aspect ratio.
 
 Dark blue-black glass, double inset edge, 76px outer radius. Foreground #ffffff; secondary #bec6d3; muted #a2acbc. White ring caps. All unselected rings use the same 58% white; selected/hover rings and provider titles use full white.
 Use the installed Segoe UI / Microsoft YaHei family, appropriate for the screenshot's system typography. Use compact Command Code lettering on one line, without replacing it with Claude.
@@ -16,3 +16,5 @@ Native glass: transparent Electron HWND with a rounded region; disable whole-win
 All controls retain the default arrow cursor. Hover brightness communicates interactivity. Center figures are display-only; ring selection and the dedicated settings button own their respective actions. Blank-space dragging uses explicit pointer events, not native caption hit regions.
 
 Center period labels use 5h / 7d / 1m consistently for both providers; account detail labels retain their descriptive wording.
+
+Tray menu: exactly Show (visibility checkbox), Pin, Settings, Quit. Both tray Show and double-click toggle visibility. Glass transparency: continuous 20–90%, default 55%; foreground text and rings remain opaque. Size previews update on each input event through native bounds, without timeout or animation-frame gating; the renderer scales its fixed layout with a transform, not page zoom. The resident backdrop updates the HWND region during resizing without starting helper processes per frame.

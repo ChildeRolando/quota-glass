@@ -54,8 +54,8 @@ const {execFileSync}=require('node:child_process');
   for(const scale of ['0.6','0.73','0.8','1','1.17','1.4']){
    await preferences.locator('#scale').fill(scale);
    await preferences.locator('#scale').dispatchEvent('change');
-   await page.waitForFunction(async s=>(await window.quota.get()).options.scale===s,Number(scale));
-   await page.waitForFunction(()=>Math.abs(innerHeight-414)<=2);
+   await page.waitForFunction(async s=>Math.abs((await window.quota.get()).options.scale-s)<0.003,Number(scale));
+   await page.waitForFunction(s=>Math.abs(innerHeight-414*s)<=2,Number(scale));
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   }
   await preferences.locator('#scale').fill('0.8');
