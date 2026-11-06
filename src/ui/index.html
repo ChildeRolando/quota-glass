@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'">
+  <title>Quota Glass</title><link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <main class="glass" aria-label="订阅剩余额度悬浮面板">
+    <div id="providers" class="providers"></div>
+    <footer>
+      <span id="freshness" role="status">正在读取额度</span>
+      <nav aria-label="面板操作">
+        <button id="refresh" title="刷新额度" aria-label="刷新额度"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M19 12a7 7 0 0 0-12-5L4 10m16 4-3 3A7 7 0 0 1 5 12"/></svg></button>
+        <button id="settings" title="设置与连接状态" aria-label="设置与连接状态"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16M9 3v6M15 9v6M8 15v6"/></svg></button>
+        <button id="hide" title="收起到托盘 · Ctrl+Shift+Q" aria-label="收起到托盘"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+      </nav>
+    </footer>
+  </main>
+  <script src="shared.js"></script><script src="panel.js"></script>
+</body></html>

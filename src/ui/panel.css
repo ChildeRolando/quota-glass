@@ -1,0 +1,26 @@
+:root{color-scheme:dark;--text:#fff;--secondary:#bec6d3;--muted:#b9c2d0;--track:rgba(208,219,235,.14);font-family:"Segoe UI","Microsoft YaHei UI",sans-serif;font-synthesis:none}
+*,*::before,*::after{box-sizing:border-box;-webkit-app-region:no-drag!important;cursor:default!important}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}body{color:var(--text);user-select:none}
+button{font:inherit;color:inherit}button:focus-visible{outline:2px solid #e2eaf6;outline-offset:5px}::selection{background:#768296;color:#fff}
+.glass{position:relative;width:100%;height:414px;border-radius:76px;overflow:hidden;isolation:isolate;background:linear-gradient(145deg,rgba(13,23,35,.53),rgba(16,28,43,.36) 48%,rgba(10,20,33,.52));box-shadow:inset 0 1px 0 rgba(255,255,255,.75),inset 1px 0 0 rgba(215,233,255,.42),inset -1px -2px 0 rgba(192,217,247,.38),inset 0 0 0 4px rgba(5,13,24,.24)}
+.glass::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:linear-gradient(116deg,rgba(237,247,255,0) 0%,rgba(237,247,255,.018) 12%,rgba(237,247,255,.055) 26%,rgba(237,247,255,.065) 36%,rgba(237,247,255,.035) 49%,rgba(237,247,255,.008) 64%,rgba(237,247,255,0) 78%),linear-gradient(180deg,rgba(241,249,255,.17),rgba(230,244,255,.035) 13%,transparent 30%)}
+.glass::after{content:"";position:absolute;inset:4px;pointer-events:none;border:1px solid rgba(200,221,246,.16);border-top-color:rgba(244,250,255,.38);border-radius:72px}
+.providers{display:flex;padding:27px 41px 0;gap:0}
+.provider{flex:0 0 235px;width:235px;text-align:center}
+.provider h2{display:flex;height:49px;align-items:center;justify-content:center;gap:10px;margin:0;color:var(--text);font-size:34px;font-weight:600;letter-spacing:.3px;white-space:nowrap}
+.provider h2.command{font-size:26px;letter-spacing:0;gap:9px}
+.brand-icon{width:31px;height:31px;flex:none;color:var(--text)}
+.meter-button{display:block;width:200px;height:200px;padding:0;margin:12px auto 0;position:relative;background:none;border:0;border-radius:50%;-webkit-app-region:no-drag}
+.meter-button:hover .meter-value{text-shadow:0 1px 10px rgba(255,255,255,.16)}
+.rings{width:200px;height:200px;overflow:visible;transform:rotate(-90deg)}
+.ring-track{stroke:var(--track);fill:none}.ring-fill{fill:none;stroke:rgba(241,243,247,.58);stroke-linecap:round;transition:stroke .15s,stroke-dasharray .7s cubic-bezier(.16,1,.3,1)}
+.ring-control{outline:none}.ring-hit{fill:none;stroke:transparent;pointer-events:stroke}.ring-track,.ring-fill{pointer-events:none}.ring-control:hover .ring-fill,.ring-control:focus-visible .ring-fill,.ring-control.selected .ring-fill{stroke:#fff}.ring-control:focus-visible .ring-track{stroke:#d5e5fb;stroke-dasharray:3 5}
+.meter-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:128px;height:128px;border:0;border-radius:50%;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;font-variant-numeric:tabular-nums;-webkit-app-region:no-drag}
+.triple .meter-center{width:90px;height:90px}.triple .meter-value{font-size:42px}.triple .meter-period{font-size:23px}
+.meter-value{font-size:56px;line-height:1.08;font-weight:600;letter-spacing:.2px}.dual .meter-value{font-size:51px}.meter-period{color:var(--muted);font-size:26px;line-height:1.3;font-weight:400}
+.countdown{margin:17px 0 0;height:44px;line-height:44px;font-size:28px;letter-spacing:.1px;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums}
+.offline .meter-value{font-size:49px;color:var(--secondary);font-weight:400}.offline .meter-period{font-size:24px}.offline .countdown{font-size:25px;color:var(--muted)}
+footer{position:absolute;left:30px;right:29px;bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:6px;height:34px}
+#freshness{font-size:16px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+nav{display:flex;gap:2px;-webkit-app-region:no-drag}nav button{display:grid;place-items:center;width:34px;height:34px;padding:8px;border:0;border-radius:10px;background:none;color:var(--secondary);opacity:.55;transition:background .18s,color .18s,opacity .18s}
+nav button:hover,nav button:focus-visible{background:rgba(219,230,247,.1);color:#fff;opacity:1}nav button:disabled{opacity:.22}nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}

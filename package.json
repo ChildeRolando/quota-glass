@@ -1,0 +1,19 @@
+{
+  "name": "quota-glass",
+  "productName": "Quota Glass",
+  "version": "1.0.0",
+  "description": "Local subscription quota floating panel",
+  "private": true,
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "verify": "node scripts/verify.cjs",
+    "package": "node scripts/package.cjs"
+  },
+  "devDependencies": {
+    "electron": "45.2.3",
+    "@electron/packager": "20.3.0",
+    "playwright": "1.58.2"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+screenshots/
+dist/
+outputs/
+docs/verification.md
+.env
+.env.*
+*.log
+*.db
+*.sqlite*
+*.pfx
+*.pem
