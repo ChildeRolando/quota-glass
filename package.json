@@ -9,6 +9,7 @@
     "start": "electron .",
     "test": "node --test test/*.test.cjs",
     "verify": "node scripts/verify.cjs",
+    "verify:settings": "node scripts/verify-settings.cjs",
     "package": "node scripts/package.cjs"
   },
   "devDependencies": {

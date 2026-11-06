@@ -46,12 +46,34 @@ function secureWindow(win) {
   win.webContents.on('will-navigate',e=>e.preventDefault());
   win.webContents.session.setPermissionRequestHandler((_w,_p,cb)=>cb(false));
 }
+let settingsReady=false;
+function presentSettings(win){
+  if(win.isDestroyed())return;
+  if(win.isMinimized())win.restore();
+  win.show();win.focus();
+}
 function openSettings() {
-  if(settings && !settings.isDestroyed()) { settings.show();settings.focus();return; }
-  settings=new BrowserWindow({width:630,height:690,minWidth:530,minHeight:560,title:'Quota Glass · 设置',
+  if(settings && !settings.isDestroyed()) {
+    if(settingsReady)presentSettings(settings);
+    return;
+  }
+  settingsReady=false;
+  const area=screen.getDisplayMatching(panel.getBounds()).workArea;
+  const width=Math.min(630,area.width),height=Math.min(690,area.height);
+  const win=new BrowserWindow({width,height,minWidth:Math.min(530,width),minHeight:Math.min(560,height),
+    x:area.x+Math.round((area.width-width)/2),y:area.y+Math.round((area.height-height)/2),
+    title:'Quota Glass · 设置',parent:panel,show:false,
     backgroundColor:'#151e2b',autoHideMenuBar:true,
     webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
-  secureWindow(settings);settings.loadFile(path.join(__dirname,'ui/settings.html'));
+  settings=win;
+  // Own the settings window and activate it only after its first paint. The initial
+  // creation path must not briefly show an unready, unowned window behind other apps.
+  win.once('ready-to-show',()=>{if(settings===win){settingsReady=true;presentSettings(win);}});
+  win.once('closed',()=>{if(settings===win){settings=null;settingsReady=false;}});
+  secureWindow(win);
+  win.loadFile(path.join(__dirname,'ui/settings.html')).catch(()=>{
+    console.warn('Settings page could not load.');if(!win.isDestroyed())win.destroy();
+  });
 }
 function trayMenu() {
   if(!tray)return;

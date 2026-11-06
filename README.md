@@ -49,12 +49,15 @@ npm ci
 npm start
 npm test
 npm run verify
+npm run verify:settings
 npm run package
 ```
 
 打包结果位于 `dist/QuotaGlass-win32-x64/`，可通过 `QUOTA_GLASS_OUTPUT_DIR` 自定义输出目录。仓库包含附源码的原生辅助程序；重新编译需安装 .NET Framework 4.8 开发工具与 Windows SDK 10.0.20348.0。
 
 `verify` 会真实读取本机额度并测试两个窗口、60%–140% 连续缩放、置顶、隔离与断线展示；测试截图中 `offline-panel.png` 为明确注入的断线场景，`live-panel.png` 为实际查询结果。开发测试状态与正常运行状态使用不同配置目录，验证模式禁用开机启动操作。截图、真实查询结果与本机验证记录不会提交到 Git。
+
+`verify:settings` 检查首次打开设置、重复打开、关闭后重开和最小化恢复，在置顶开关两种状态下验证显示时机与窗口归属。
 
 Windows 11 使用透明窗口，禁用整窗 Accent、系统背景和边框。`src/native/GlassHelper.exe` 裁剪指定 PID 的窗口；`GlassBackdrop.exe` 在其下方放置不抢焦点、不接收点击的原生合成窗口，HostBackdropBrush 配合圆角几何遮罩，让模糊效果本身也严格限于圆角以内。它跟随面板移动、缩放、隐藏并随程序退出，不采集屏幕截图。两个辅助程序均附 C# 源码，可用 `scripts/build-native.ps1` 编译。玻璃观感会随桌面背景、系统透明效果和显示缩放变化。此版本针对 Windows 11 x64 打包，其他系统兼容性需单独确认。
 
