@@ -49,6 +49,8 @@ function render(data){
   column.append(header,meter,detail);container.append(column);
  }
  document.getElementById('freshness').textContent=freshness(data);
+ const ping=document.getElementById('ping');ping.hidden=!data.options.clashPing;
+ ping.textContent=pingText(data.clash);ping.title=data.clash?.status==='connected'?`${data.clash.group} → ${data.clash.node}`:data.clash?.error||'正在测速';
  document.getElementById('refresh').disabled=data.busy;
 }
 document.getElementById('refresh').addEventListener('click',()=>window.quota.refresh());

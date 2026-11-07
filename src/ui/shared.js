@@ -22,3 +22,5 @@ function freshness(data){
  const age=secs<60?`${secs}秒`:`${Math.floor(secs/60)}分钟`;
  return `${connected.length<data.providers.length?'部分连接 · ': '距更新 '}${age}`;
 }
+
+function pingText(clash){return clash?.status==='connected'&&Number.isFinite(clash.delay)?`ping ${clash.delay}ms`:clash?.status==='loading'?'ping …':'ping —';}

@@ -22,3 +22,5 @@ Tray menu: exactly Show (visibility checkbox), Pin, Lock, Settings, Quit. Both t
 Tray Lock is a persistent checkbox (default off). When locked, the entire HUD ignores mouse input so underlying windows receive it. Unlocking from the tray restores HUD input.
 
 The native glass host uses WS_EX_LAYERED plus WS_EX_TRANSPARENT and full layered opacity so Windows passes mouse input across processes. The composition brush still controls visual opacity; HTTRANSPARENT alone does not guarantee cross-process passthrough.
+
+Optional ping sits immediately after freshness with a 12px gap and the same 16px muted tabular typography. Settings has an Extensions section and a checkbox with current node/status. Loading is ping …, unavailable is ping —, disabled is hidden.

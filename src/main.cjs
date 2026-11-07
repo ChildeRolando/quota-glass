@@ -4,14 +4,23 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {providers,readProvider} = require('./providers/index.cjs');
 const {applyGlass,setGlassOpacity,stopGlass}=require('./native/glass.cjs');
+const {readClash}=require('./extensions/clash.cjs');
 const testing = process.argv.includes('--verify');
 if (testing) app.setPath('userData',path.join(app.getPath('temp'),'quota-glass-verify'));
 let panel,settings,tray,timer,busy=false,quitting=false;
 let dragOrigin=null,saveTimer;
 const panelWidth=82+235*providers.length,panelHeight=414;
 const lifetime=new AbortController();
-let options={scale:0.8,transparency:0.55,alwaysOnTop:true,locked:false}, snapshots=providers.map(p=>({id:p.id,name:p.name,icon:p.icon,status:'loading',windows:[],updatedAt:null}));
-let lastAttempt=null;
+let options={scale:0.8,transparency:0.55,alwaysOnTop:true,locked:false,clashPing:false}, snapshots=providers.map(p=>({id:p.id,name:p.name,icon:p.icon,status:'loading',windows:[],updatedAt:null}));
+let lastAttempt=null,clash=null,pingController;
+async function refreshPing(){
+  pingController?.abort();
+  if(!options.clashPing){clash=null;return;}
+  const controller=new AbortController();pingController=controller;
+  clash={status:'loading',delay:null};broadcast();
+  const result=await readClash({appData:app.getPath('appData'),signal:AbortSignal.any([controller.signal,lifetime.signal])});
+  if(pingController===controller&&!controller.signal.aborted){clash=result;broadcast();}
+}
 const configFile=()=>path.join(app.getPath('userData'),'settings.json');
 function saveOptions() { try { fs.mkdirSync(app.getPath('userData'),{recursive:true}); fs.writeFileSync(configFile(),JSON.stringify(options,null,2)); } catch {} }
 function saveSoon(){clearTimeout(saveTimer);saveTimer=setTimeout(saveOptions,180);}
@@ -29,11 +38,11 @@ function startupState(){
   try {const item=app.getLoginItemSettings({path:process.execPath,args:[]});return {available:true,enabled:item.openAtLogin&&item.executableWillLaunchAtLogin,error:''};}
   catch{return {available:false,enabled:false,error:'无法读取开机启动状态'};}
 }
-function state() {return {providers:snapshots,options,visible:panel?.isVisible()??false,busy,lastAttempt,startup:startupState()};}
+function state() {return {providers:snapshots,options,visible:panel?.isVisible()??false,busy,lastAttempt,clash,startup:startupState()};}
 function broadcast() { for(const win of [panel,settings]) if(win && !win.isDestroyed()) win.webContents.send('quota:update',state()); }
 async function refresh() {
   if(busy) return state();
-  busy=true;broadcast();
+  busy=true;broadcast();void refreshPing();
   try { snapshots=await Promise.all(providers.map(p=>readProvider(p,{fetch:net.fetch.bind(net),signal:lifetime.signal})));lastAttempt=Date.now(); }
   finally { busy=false;broadcast(); }
   return state();
@@ -104,6 +113,7 @@ function setOption(key,value) {
   if(key==='scale'||key==='transparency'){if(!setAppearance(key,value))return state();}
   else if(key==='alwaysOnTop' && typeof value==='boolean') {options.alwaysOnTop=value;applyPin();}
   else if(key==='locked'&&typeof value==='boolean'){options.locked=value;applyLock();}
+  else if(key==='clashPing'&&typeof value==='boolean'){options.clashPing=value;void refreshPing();}
   else if(key==='startup'&&typeof value==='boolean'&&startupState().available){
     try{app.setLoginItemSettings({openAtLogin:value,enabled:value,path:process.execPath,args:[]});}
     catch{return {...state(),startup:{...startupState(),error:'无法修改开机启动，请重试'}};}
@@ -123,6 +133,7 @@ else {
     if(Number.isFinite(saved.transparency)&&saved.transparency>=0.2&&saved.transparency<=0.9)options.transparency=saved.transparency;
     if(typeof saved.alwaysOnTop==='boolean')options.alwaysOnTop=saved.alwaysOnTop;
     if(typeof saved.locked==='boolean')options.locked=saved.locked;
+    if(typeof saved.clashPing==='boolean')options.clashPing=saved.clashPing;
     if(Number.isFinite(saved.x)&&Number.isFinite(saved.y)){options.x=saved.x;options.y=saved.y;}
   }catch{}
   nativeTheme.themeSource='dark';

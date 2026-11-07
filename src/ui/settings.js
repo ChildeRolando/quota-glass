@@ -13,6 +13,8 @@ function render(data){
   root.append(section);
  }
  document.getElementById('top').checked=data.options.alwaysOnTop;
+ document.getElementById('clash-ping').checked=Boolean(data.options.clashPing);
+ document.getElementById('clash-status').textContent=!data.options.clashPing?'未开启':data.clash?.status==='connected'?`${data.clash.group} → ${data.clash.node} · ${data.clash.delay}ms`:data.clash?.error||'正在读取当前节点并测速…';
  document.getElementById('startup').checked=Boolean(data.startup?.enabled);
  document.getElementById('startup').disabled=!data.startup?.available;
  document.getElementById('startup-note').textContent=data.startup?.error||(data.startup?.available?'登录 Windows 后自动显示面板':'开机启动仅在正式版中可用，验证模式不修改系统启动项');
@@ -21,6 +23,7 @@ function render(data){
  document.getElementById('status').textContent=freshness(data);
 }
 document.getElementById('refresh').addEventListener('click',()=>window.quota.refresh());
+document.getElementById('clash-ping').addEventListener('change',e=>window.quota.setOption('clashPing',e.target.checked));
 document.getElementById('top').addEventListener('change',e=>window.quota.setOption('alwaysOnTop',e.target.checked));
 document.getElementById('startup').addEventListener('change',async event=>{
  const input=event.target;input.disabled=true;

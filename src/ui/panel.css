@@ -20,7 +20,7 @@ button{font:inherit;color:inherit}button:focus-visible{outline:2px solid #e2eaf6
 .countdown{margin:17px 0 0;height:44px;line-height:44px;font-size:28px;letter-spacing:.1px;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums}
 .offline .meter-value{font-size:49px;color:var(--secondary);font-weight:400}.offline .meter-period{font-size:24px}.offline .countdown{font-size:25px;color:var(--muted)}
 footer{position:absolute;left:30px;right:29px;bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:6px;height:34px}
-#freshness{font-size:16px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.update-status{display:flex;align-items:center;gap:12px;min-width:0}#ping[hidden]{display:none}#freshness,#ping{font-size:16px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 nav{display:flex;gap:2px;-webkit-app-region:no-drag}nav button{display:grid;place-items:center;width:34px;height:34px;padding:8px;border:0;border-radius:10px;background:none;color:var(--secondary);opacity:.55;transition:background .18s,color .18s,opacity .18s}
 nav button:hover,nav button:focus-visible{background:rgba(219,230,247,.1);color:#fff;opacity:1}nav button:disabled{opacity:.22}nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}

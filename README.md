@@ -74,3 +74,10 @@ Windows 11 使用透明窗口，禁用整窗 Accent、系统背景和边框。`s
 见 [docs/providers.md](docs/providers.md)。认证与服务商响应格式各自封装，通用界面只消费经过筛选的额度结构。现有实现没有 GLM 或 DeepSeek 接入。
 
 `npm run verify:lock` 检查托盘锁定往返、HUD 与玻璃层的原生鼠标穿透标记、Windows 实际命中后方测试窗口、隐藏恢复和重启后的锁定状态。
+
+### Clash Verge 延迟扩展
+设置 → 扩展 → 显示 Clash Verge 节点延迟，默认关闭。开启后在更新时间右侧显示 `ping 191ms`，立即测速一次，此后随手动或每 60 秒的额度刷新测速；关闭后隐藏并取消未完成的查询，开关会保存。
+
+通过本机 Clash Verge / Clash Verge Rev 的命名管道（含服务模式）或本地控制接口读取当前选择。规则模式跟随最终 MATCH 策略，全局模式跟随 GLOBAL，递归定位选中的节点。延迟是 Clash 的 HTTP URL 测试结果，不是 ICMP ping；优先使用 Verge 的测速地址或策略组地址，默认 `http://cp.cloudflare.com/generate_204`。不修改节点、代理设置或配置文件；接口凭据只在主进程内使用。
+
+未运行、直连、没有唯一当前节点、超时或测速期间节点切换时显示 `ping —`，设置中说明原因，不沿用旧数值。测速独立于额度请求，不延迟额度显示。`npm run verify:clash` 需要本机 Clash Verge 正在运行，用实际节点验证显示开关和取消查询，并用明确的模拟数据检查布局。

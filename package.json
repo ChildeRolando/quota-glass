@@ -11,13 +11,17 @@
     "verify": "node scripts/verify.cjs",
     "verify:settings": "node scripts/verify-settings.cjs",
     "verify:appearance": "node scripts/verify-appearance.cjs",
+    "verify:clash": "node scripts/verify-clash.cjs",
     "verify:lock": "node scripts/verify-lock.cjs",
     "verify:topmost": "node scripts/verify-topmost.cjs",
     "package": "node scripts/package.cjs"
   },
   "devDependencies": {
-    "electron": "45.2.3",
     "@electron/packager": "20.3.0",
+    "electron": "45.2.3",
     "playwright": "1.58.2"
+  },
+  "dependencies": {
+    "yaml": "2.8.1"
   }
 }

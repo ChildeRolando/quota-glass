@@ -30,3 +30,5 @@ A persistent, draggable, always-on-top quota panel, visually reproducing the sup
 The supplied screenshot is binding: dark translucent glass, large rounded outline, white rounded progress rings, restrained grey text and horizontal provider columns. Adapt four columns to two.
 
 Tray Lock is a persistent checkbox (default off). When locked, the entire HUD ignores mouse input so underlying windows receive it. Unlocking from the tray restores HUD input.
+
+Optional Clash Verge latency extension: default off, persistent settings checkbox, measures the selected node alongside quota refresh without blocking quotas. Uses local controller only; no proxy configuration writes.
