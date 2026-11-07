@@ -18,6 +18,9 @@ class GlassHelper {
   [DllImport("user32.dll")] static extern bool SetProcessDpiAwarenessContext(IntPtr context);
   [DllImport("user32.dll")] static extern IntPtr GetWindowLongPtr(IntPtr h,int index);
   [DllImport("user32.dll")] static extern IntPtr GetWindow(IntPtr h,uint command);
+  [StructLayout(LayoutKind.Sequential)] struct Point {public int X,Y;}
+  [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(Point point);
+  [DllImport("user32.dll")] static extern IntPtr GetAncestor(IntPtr h,uint flags);
   [DllImport("user32.dll",CharSet=CharSet.Unicode)] static extern IntPtr GetProp(IntPtr h,string name);
   static bool Above(IntPtr first,IntPtr second){for(int n=0;n<4096&&first!=IntPtr.Zero;n++){first=GetWindow(first,2);if(first==second)return true;}return false;}
   static bool Topmost(IntPtr h){return (GetWindowLongPtr(h,-20).ToInt64()&8)!=0;}
@@ -27,11 +30,24 @@ class GlassHelper {
       IntPtr window=new IntPtr(long.Parse(args[0]));uint expected=uint.Parse(args[1]),owner;
       GetWindowThreadProcessId(window,out owner);if(owner!=expected)return 3;
       SetProcessDpiAwarenessContext(new IntPtr(-4));
+      if(args.Length==5 && args[2]=="--pointercheck"){
+        IntPtr other=new IntPtr(long.Parse(args[4]));uint otherOwner;
+        GetWindowThreadProcessId(other,out otherOwner);if(otherOwner!=expected)return 3;
+        bool locked=args[3]=="true";if(!Above(window,other))return 19;Rect bounds;if(!GetWindowRect(window,out bounds))return 4;
+        foreach(var fraction in new double[]{0.3,0.5,0.7}){
+          var point=new Point{X=bounds.Left+(int)((bounds.Right-bounds.Left)*fraction),Y=(bounds.Top+bounds.Bottom)/2};
+          IntPtr hit=GetAncestor(WindowFromPoint(point),2);
+          if(hit!=(locked?other:window)){
+            Console.Error.WriteLine("Pointer hit unexpected HWND="+hit+"; HUD="+window+"; backdrop="+GetProp(window,"QuotaGlass.Backdrop")+"; receiver="+other);return 18;
+          }
+        }
+        return 0;
+      }
       if(args.Length==4 && args[2]=="--lockcheck"){
         bool locked=args[3]=="true";
         if(((GetWindowLongPtr(window,-20).ToInt64()&0x20)!=0)!=locked)return 16;
         IntPtr host=GetProp(window,"QuotaGlass.Backdrop");
-        if(host==IntPtr.Zero||(GetWindowLongPtr(host,-20).ToInt64()&0x20)==0)return 17;
+        if(host==IntPtr.Zero||(GetWindowLongPtr(host,-20).ToInt64()&0x80020)!=0x80020)return 17;
         return 0;
       }
       if(args.Length==5 && args[2]=="--stackcheck"){

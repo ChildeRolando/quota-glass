@@ -21,6 +21,7 @@ class GlassBackdrop {
  [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);
  [DllImport("user32.dll")] static extern IntPtr GetWindow(IntPtr h,uint command);
  [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr h,IntPtr after,int x,int y,int width,int height,uint flags);
+ [DllImport("user32.dll")] static extern bool SetLayeredWindowAttributes(IntPtr h,uint key,byte alpha,uint flags);
  [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h,int command);
  [DllImport("user32.dll")] static extern bool DestroyWindow(IntPtr h);
  [DllImport("user32.dll")] static extern bool SetProcessDpiAwarenessContext(IntPtr context);
@@ -50,8 +51,11 @@ class GlassBackdrop {
    Marshal.ThrowExceptionForHR(CreateDispatcherQueueController(new QueueOptions{Size=12,Thread=2,Apartment=2},out queue));
    var wc=new WindowClass{Size=(uint)Marshal.SizeOf(typeof(WindowClass)),Proc=procedure,Instance=GetModuleHandle(null),Name="QuotaGlassBackdrop"};
    RegisterClassEx(ref wc);
-   host=CreateWindowEx(0x00200000|0x08000000|0x80|0x20,wc.Name,"Quota Glass Backdrop",unchecked((int)0x80000000),0,0,100,100,IntPtr.Zero,IntPtr.Zero,wc.Instance,IntPtr.Zero);
+   // WS_EX_TRANSPARENT alone only changes painting order. A layered HWND is
+   // required for mouse hit testing to pass through to other processes.
+   host=CreateWindowEx(0x00200000|0x08000000|0x80|0x20|0x80000,wc.Name,"Quota Glass Backdrop",unchecked((int)0x80000000),0,0,100,100,IntPtr.Zero,IntPtr.Zero,wc.Instance,IntPtr.Zero);
    if(host==IntPtr.Zero)return 4;
+   if(!SetLayeredWindowAttributes(host,0,255,2))return 5;
    int yes=1,noBorder=unchecked((int)0xfffffffe),noCorner=1,noBackdrop=1;
    DwmSetWindowAttribute(host,17,ref yes,4);DwmSetWindowAttribute(host,34,ref noBorder,4);
    DwmSetWindowAttribute(host,33,ref noCorner,4);DwmSetWindowAttribute(host,38,ref noBackdrop,4);

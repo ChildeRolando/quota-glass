@@ -73,4 +73,4 @@ Windows 11 使用透明窗口，禁用整窗 Accent、系统背景和边框。`s
 
 见 [docs/providers.md](docs/providers.md)。认证与服务商响应格式各自封装，通用界面只消费经过筛选的额度结构。现有实现没有 GLM 或 DeepSeek 接入。
 
-`npm run verify:lock` 检查托盘锁定往返、HUD 与玻璃层的原生鼠标穿透标记、隐藏恢复和重启后的锁定状态。
+`npm run verify:lock` 检查托盘锁定往返、HUD 与玻璃层的原生鼠标穿透标记、Windows 实际命中后方测试窗口、隐藏恢复和重启后的锁定状态。
