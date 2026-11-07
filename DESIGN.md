@@ -17,4 +17,6 @@ All controls retain the default arrow cursor. Hover brightness communicates inte
 
 Center period labels use 5h / 7d / 1m consistently for both providers; account detail labels retain their descriptive wording.
 
-Tray menu: exactly Show (visibility checkbox), Pin, Settings, Quit. Both tray Show and double-click toggle visibility. Glass transparency: continuous 20–90%, default 55%; foreground text and rings remain opaque. Size previews update on each input event through native bounds, without timeout or animation-frame gating; the renderer scales its fixed layout with a transform, not page zoom. The resident backdrop updates the HWND region during resizing without starting helper processes per frame.
+Tray menu: exactly Show (visibility checkbox), Pin, Lock, Settings, Quit. Both tray Show and double-click toggle visibility. Glass transparency: continuous 20–90%, default 55%; foreground text and rings remain opaque. Size previews update on each input event through native bounds, without timeout or animation-frame gating; the renderer scales its fixed layout with a transform, not page zoom. The resident backdrop updates the HWND region during resizing without starting helper processes per frame.
+
+Tray Lock is a persistent checkbox (default off). When locked, the entire HUD ignores mouse input so underlying windows receive it. Unlocking from the tray restores HUD input.

@@ -10,7 +10,7 @@ let panel,settings,tray,timer,busy=false,quitting=false;
 let dragOrigin=null,saveTimer;
 const panelWidth=82+235*providers.length,panelHeight=414;
 const lifetime=new AbortController();
-let options={scale:0.8,transparency:0.55,alwaysOnTop:true}, snapshots=providers.map(p=>({id:p.id,name:p.name,icon:p.icon,status:'loading',windows:[],updatedAt:null}));
+let options={scale:0.8,transparency:0.55,alwaysOnTop:true,locked:false}, snapshots=providers.map(p=>({id:p.id,name:p.name,icon:p.icon,status:'loading',windows:[],updatedAt:null}));
 let lastAttempt=null;
 const configFile=()=>path.join(app.getPath('userData'),'settings.json');
 function saveOptions() { try { fs.mkdirSync(app.getPath('userData'),{recursive:true}); fs.writeFileSync(configFile(),JSON.stringify(options,null,2)); } catch {} }
@@ -21,6 +21,7 @@ function applyPin(){
   // WS_EX_TOPMOST in this runtime. Reapply whenever the overlay is shown.
   panel.setAlwaysOnTop(options.alwaysOnTop,options.alwaysOnTop?'pop-up-menu':'normal');
 }
+function applyLock(){dragOrigin=null;panel.setIgnoreMouseEvents(options.locked);}
 function togglePanel(){if(panel.isVisible())panel.hide();else{panel.show();panel.focus();}}
 function startupState(){
   const available=process.platform==='win32'&&app.isPackaged&&!testing;
@@ -94,6 +95,7 @@ function trayMenu() {
   tray.setContextMenu(Menu.buildFromTemplate([
     {id:'visibility',label:'显示',type:'checkbox',checked:panel.isVisible(),click:togglePanel},
     {id:'pin',label:'置顶',type:'checkbox',checked:options.alwaysOnTop,click:item=>setOption('alwaysOnTop',item.checked)},
+    {id:'lock',label:'锁定',type:'checkbox',checked:options.locked,click:item=>setOption('locked',item.checked)},
     {id:'settings',label:'设置',click:openSettings},
     {label:'退出',click:()=>{quitting=true;app.quit();}}
   ]));
@@ -101,6 +103,7 @@ function trayMenu() {
 function setOption(key,value) {
   if(key==='scale'||key==='transparency'){if(!setAppearance(key,value))return state();}
   else if(key==='alwaysOnTop' && typeof value==='boolean') {options.alwaysOnTop=value;applyPin();}
+  else if(key==='locked'&&typeof value==='boolean'){options.locked=value;applyLock();}
   else if(key==='startup'&&typeof value==='boolean'&&startupState().available){
     try{app.setLoginItemSettings({openAtLogin:value,enabled:value,path:process.execPath,args:[]});}
     catch{return {...state(),startup:{...startupState(),error:'无法修改开机启动，请重试'}};}
@@ -119,6 +122,7 @@ else {
     if(Number.isFinite(saved.scale)&&saved.scale>=0.6&&saved.scale<=1.4)options.scale=saved.scale;
     if(Number.isFinite(saved.transparency)&&saved.transparency>=0.2&&saved.transparency<=0.9)options.transparency=saved.transparency;
     if(typeof saved.alwaysOnTop==='boolean')options.alwaysOnTop=saved.alwaysOnTop;
+    if(typeof saved.locked==='boolean')options.locked=saved.locked;
     if(Number.isFinite(saved.x)&&Number.isFinite(saved.y)){options.x=saved.x;options.y=saved.y;}
   }catch{}
   nativeTheme.themeSource='dark';
@@ -138,7 +142,7 @@ else {
   });
   panel.on('close',e=>{if(!quitting&&!testing){e.preventDefault();panel.hide();}});
   panel.on('moved',()=>{const b=panel.getBounds();if(options.x!==b.x||options.y!==b.y){options.x=b.x;options.y=b.y;saveSoon();}});
-  panel.on('show',()=>{applyPin();applyGlass(panel);trayMenu();});
+  panel.on('show',()=>{applyPin();applyLock();applyGlass(panel);trayMenu();});
   panel.on('hide',trayMenu);
   panel.webContents.once('did-finish-load',()=>{panel.webContents.setZoomFactor(1);resizePanel();setGlassOpacity(panel,0.28*(1-options.transparency)/0.45);panel.show();});
   const icon=nativeImage.createFromPath(path.join(__dirname,'ui/tray.png'));
@@ -153,7 +157,7 @@ else {
   ipcMain.on('quota:preview-option',(event,key,value)=>{if(event.sender===settings?.webContents&&setAppearance(key,value))saveSoon();});
   ipcMain.handle('quota:option',(_e,key,value)=>setOption(key,value));
   ipcMain.on('quota:drag',(event,phase)=>{
-    if(event.sender!==panel.webContents)return;
+    if(event.sender!==panel.webContents||options.locked)return;
     if(phase==='start')dragOrigin={cursor:screen.getCursorScreenPoint(),bounds:panel.getBounds()};
     else if(phase==='move'&&dragOrigin){const cursor=screen.getCursorScreenPoint();panel.setPosition(dragOrigin.bounds.x+cursor.x-dragOrigin.cursor.x,dragOrigin.bounds.y+cursor.y-dragOrigin.cursor.y);}
     else if(phase==='end')dragOrigin=null;

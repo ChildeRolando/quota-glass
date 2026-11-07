@@ -9,7 +9,7 @@ const path=require('node:path');
   const panel=await app.firstWindow();await panel.waitForSelector('.provider');
   await app.evaluate(({Menu})=>{const build=Menu.buildFromTemplate;Menu.buildFromTemplate=function(template){const result=build.call(this,template);global.testTrayMenu=result;return result;};});
   await panel.evaluate(()=>window.quota.setOption('alwaysOnTop',true));
-  assert.deepEqual(await app.evaluate(()=>global.testTrayMenu.items.map(i=>i.label)),['显示','置顶','设置','退出']);
+  assert.deepEqual(await app.evaluate(()=>global.testTrayMenu.items.map(i=>i.label)),['显示','置顶','锁定','设置','退出']);
   for(const visible of [false,true,false,true]){
    await app.evaluate(()=>global.testTrayMenu.getMenuItemById('visibility').click());
    assert.equal(await panel.evaluate(()=>window.quota.get()).then(s=>s.visible),visible);
@@ -53,6 +53,6 @@ const path=require('node:path');
   for(const mode of ['--check','--hitcheck','--edgecheck'])execFileSync(helper,[native.handle,native.pid,mode],{windowsHide:true,timeout:5000});
   await settings.locator('#transparency').scrollIntoViewIfNeeded();
   await settings.screenshot({path:'screenshots/appearance-settings.png'});
-  console.log('Appearance passed: four tray actions, repeated show/hide, hidden-panel settings, continuous drag samples, transparency, rounded client area and native resize edge.');
+  console.log('Appearance passed: five tray actions, repeated show/hide, hidden-panel settings, continuous drag samples, transparency, rounded client area and native resize edge.');
  }finally{await app.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

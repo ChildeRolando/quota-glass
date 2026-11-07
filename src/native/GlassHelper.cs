@@ -27,6 +27,13 @@ class GlassHelper {
       IntPtr window=new IntPtr(long.Parse(args[0]));uint expected=uint.Parse(args[1]),owner;
       GetWindowThreadProcessId(window,out owner);if(owner!=expected)return 3;
       SetProcessDpiAwarenessContext(new IntPtr(-4));
+      if(args.Length==4 && args[2]=="--lockcheck"){
+        bool locked=args[3]=="true";
+        if(((GetWindowLongPtr(window,-20).ToInt64()&0x20)!=0)!=locked)return 16;
+        IntPtr host=GetProp(window,"QuotaGlass.Backdrop");
+        if(host==IntPtr.Zero||(GetWindowLongPtr(host,-20).ToInt64()&0x20)==0)return 17;
+        return 0;
+      }
       if(args.Length==5 && args[2]=="--stackcheck"){
         bool pinned=args[3]=="true";IntPtr other=new IntPtr(long.Parse(args[4]));uint otherOwner;
         GetWindowThreadProcessId(other,out otherOwner);if(otherOwner!=expected)return 3;
