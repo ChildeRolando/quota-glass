@@ -11,6 +11,7 @@
     "verify": "node scripts/verify.cjs",
     "verify:settings": "node scripts/verify-settings.cjs",
     "verify:appearance": "node scripts/verify-appearance.cjs",
+    "verify:topmost": "node scripts/verify-topmost.cjs",
     "package": "node scripts/package.cjs"
   },
   "devDependencies": {

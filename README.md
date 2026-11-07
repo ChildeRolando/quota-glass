@@ -52,6 +52,7 @@ npm test
 npm run verify
 npm run verify:settings
 npm run verify:appearance
+npm run verify:topmost
 npm run package
 ```
 
@@ -62,6 +63,8 @@ npm run package
 `verify:settings` 检查首次打开设置、重复打开、关闭后重开和最小化恢复，在置顶开关两种状态下验证显示时机与窗口归属。
 
 `verify:appearance` 检查托盘显隐、隐藏面板后打开设置、滑块拖动期间的尺寸采样、透明度、原生边缘命中与圆角裁剪。
+
+`verify:topmost` 读取原生窗口置顶标记和 Z 顺序，检查另一普通窗口切到前台后 HUD 与玻璃层仍位于其上方，以及取消置顶、缩放和显隐恢复。
 
 Windows 11 使用透明窗口，禁用整窗 Accent、系统背景和边框。`src/native/GlassHelper.exe` 裁剪指定 PID 的窗口；`GlassBackdrop.exe` 在其下方放置不抢焦点、不接收点击的原生合成窗口，HostBackdropBrush 配合圆角几何遮罩，让模糊效果本身也严格限于圆角以内。它常驻跟随面板移动、缩放、隐藏，在尺寸变化时更新窗口圆角，通过本地管道调整模糊透明度，并随程序退出，不采集屏幕截图。两个辅助程序均附 C# 源码，可用 `scripts/build-native.ps1` 编译。玻璃观感会随桌面背景、系统透明效果和显示缩放变化。此版本针对 Windows 11 x64 打包，其他系统兼容性需单独确认。
 

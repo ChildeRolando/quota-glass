@@ -32,6 +32,9 @@ class GlassBackdrop {
  [DllImport("user32.dll")] static extern int SetWindowRgn(IntPtr h,IntPtr region,bool redraw);
  [DllImport("gdi32.dll")] static extern IntPtr CreateRoundRectRgn(int left,int top,int right,int bottom,int width,int height);
  [DllImport("gdi32.dll")] static extern bool DeleteObject(IntPtr obj);
+ [DllImport("user32.dll")] static extern IntPtr GetWindowLongPtr(IntPtr h,int index);
+ [DllImport("user32.dll",CharSet=CharSet.Unicode)] static extern bool SetProp(IntPtr h,string name,IntPtr value);
+ [DllImport("user32.dll",CharSet=CharSet.Unicode)] static extern IntPtr RemoveProp(IntPtr h,string name);
  static volatile float requestedOpacity=0.28f;
  static WndProc procedure=WindowProcedure;
  static IntPtr target,host; static uint owner;static object queue;
@@ -57,10 +60,10 @@ class GlassBackdrop {
    compositionTarget=(DesktopWindowTarget)Marshal.GetObjectForIUnknown(raw);Marshal.Release(raw);
    glass=compositor.CreateSpriteVisual();glass.Brush=compositor.CreateHostBackdropBrush();glass.Opacity=0.28f;
    shape=compositor.CreateRoundedRectangleGeometry();glass.Clip=compositor.CreateGeometricClip(shape);
-   compositionTarget.Root=glass;
+   compositionTarget.Root=glass;SetProp(target,"QuotaGlass.Backdrop",host);
    var input=new Thread(delegate(){string line;while((line=Console.ReadLine())!=null){float value;if(float.TryParse(line,NumberStyles.Float,CultureInfo.InvariantCulture,out value)&&!float.IsNaN(value)&&value>=0&&value<=1)requestedOpacity=value;}});input.IsBackground=true;input.Start();
    var timer=new System.Windows.Forms.Timer();timer.Interval=16;timer.Tick+=delegate{Sync();};timer.Start();Sync();
-   Application.Run();timer.Stop();DestroyWindow(host);GC.KeepAlive(queue);return 0;
+   Application.Run();timer.Stop();RemoveProp(target,"QuotaGlass.Backdrop");DestroyWindow(host);GC.KeepAlive(queue);return 0;
   }catch(Exception e){Console.Error.WriteLine("Backdrop initialization failed: "+e.GetType().Name+" "+e.HResult.ToString("X"));return 1;}
  }
  static void Sync(){
@@ -80,6 +83,9 @@ class GlassBackdrop {
    }
    previous=r;
   }
-  if(changed||!shown||GetWindow(target,2)!=host){SetWindowPos(host,target,r.L,r.T,r.R-r.L,r.B-r.T,0x10|0x40);shown=true;}
+  bool targetTopmost=(GetWindowLongPtr(target,-20).ToInt64()&8)!=0;
+  bool hostTopmost=(GetWindowLongPtr(host,-20).ToInt64()&8)!=0;
+  if(targetTopmost!=hostTopmost)SetWindowPos(host,new IntPtr(targetTopmost?-1:-2),0,0,0,0,0x1|0x2|0x10|0x200);
+  if(changed||!shown||GetWindow(target,2)!=host){SetWindowPos(host,target,r.L,r.T,r.R-r.L,r.B-r.T,0x10|0x40|0x200);shown=true;}
  }
 }

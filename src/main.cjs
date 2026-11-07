@@ -16,6 +16,11 @@ const configFile=()=>path.join(app.getPath('userData'),'settings.json');
 function saveOptions() { try { fs.mkdirSync(app.getPath('userData'),{recursive:true}); fs.writeFileSync(configFile(),JSON.stringify(options,null,2)); } catch {} }
 function saveSoon(){clearTimeout(saveTimer);saveTimer=setTimeout(saveOptions,180);}
 function appearance(){for(const win of [panel,settings])if(win&&!win.isDestroyed())win.webContents.send('quota:appearance',options);}
+function applyPin(){
+  // Explicit Windows level: the default floating level does not reliably set
+  // WS_EX_TOPMOST in this runtime. Reapply whenever the overlay is shown.
+  panel.setAlwaysOnTop(options.alwaysOnTop,options.alwaysOnTop?'pop-up-menu':'normal');
+}
 function togglePanel(){if(panel.isVisible())panel.hide();else{panel.show();panel.focus();}}
 function startupState(){
   const available=process.platform==='win32'&&app.isPackaged&&!testing;
@@ -95,7 +100,7 @@ function trayMenu() {
 }
 function setOption(key,value) {
   if(key==='scale'||key==='transparency'){if(!setAppearance(key,value))return state();}
-  else if(key==='alwaysOnTop' && typeof value==='boolean') {options.alwaysOnTop=value;panel.setAlwaysOnTop(value);}
+  else if(key==='alwaysOnTop' && typeof value==='boolean') {options.alwaysOnTop=value;applyPin();}
   else if(key==='startup'&&typeof value==='boolean'&&startupState().available){
     try{app.setLoginItemSettings({openAtLogin:value,enabled:value,path:process.execPath,args:[]});}
     catch{return {...state(),startup:{...startupState(),error:'无法修改开机启动，请重试'}};}
@@ -133,7 +138,7 @@ else {
   });
   panel.on('close',e=>{if(!quitting&&!testing){e.preventDefault();panel.hide();}});
   panel.on('moved',()=>{const b=panel.getBounds();if(options.x!==b.x||options.y!==b.y){options.x=b.x;options.y=b.y;saveSoon();}});
-  panel.on('show',()=>{applyGlass(panel);trayMenu();});
+  panel.on('show',()=>{applyPin();applyGlass(panel);trayMenu();});
   panel.on('hide',trayMenu);
   panel.webContents.once('did-finish-load',()=>{panel.webContents.setZoomFactor(1);resizePanel();setGlassOpacity(panel,0.28*(1-options.transparency)/0.45);panel.show();});
   const icon=nativeImage.createFromPath(path.join(__dirname,'ui/tray.png'));

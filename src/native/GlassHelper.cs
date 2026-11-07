@@ -16,12 +16,29 @@ class GlassHelper {
   [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr window,int message,IntPtr wparam,IntPtr lparam);
   [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr window,int attr,ref int value,int size);
   [DllImport("user32.dll")] static extern bool SetProcessDpiAwarenessContext(IntPtr context);
+  [DllImport("user32.dll")] static extern IntPtr GetWindowLongPtr(IntPtr h,int index);
+  [DllImport("user32.dll")] static extern IntPtr GetWindow(IntPtr h,uint command);
+  [DllImport("user32.dll",CharSet=CharSet.Unicode)] static extern IntPtr GetProp(IntPtr h,string name);
+  static bool Above(IntPtr first,IntPtr second){for(int n=0;n<4096&&first!=IntPtr.Zero;n++){first=GetWindow(first,2);if(first==second)return true;}return false;}
+  static bool Topmost(IntPtr h){return (GetWindowLongPtr(h,-20).ToInt64()&8)!=0;}
   static int Main(string[] args) {
     try {
       if(args.Length<2)return 2;
       IntPtr window=new IntPtr(long.Parse(args[0]));uint expected=uint.Parse(args[1]),owner;
       GetWindowThreadProcessId(window,out owner);if(owner!=expected)return 3;
       SetProcessDpiAwarenessContext(new IntPtr(-4));
+      if(args.Length==5 && args[2]=="--stackcheck"){
+        bool pinned=args[3]=="true";IntPtr other=new IntPtr(long.Parse(args[4]));uint otherOwner;
+        GetWindowThreadProcessId(other,out otherOwner);if(otherOwner!=expected)return 3;
+        if(Topmost(window)!=pinned)return 10;
+        if(Topmost(other))return 15;
+        IntPtr host=GetProp(window,"QuotaGlass.Backdrop");if(host==IntPtr.Zero)return 11;uint hostOwner;GetWindowThreadProcessId(host,out hostOwner);
+        if(System.Diagnostics.Process.GetProcessById((int)hostOwner).ProcessName!="GlassBackdrop")return 11;
+        if(Topmost(host)!=pinned)return 12;
+        bool correct=Above(window,host)&&(pinned?Above(host,other):Above(other,window));
+        if(!correct)Console.Error.WriteLine("Native stacking order mismatch; otherTopmost="+Topmost(other));
+        return correct?0:14;
+      }
       Rect rect;if(!GetWindowRect(window,out rect))return 4;
       int width=rect.Right-rect.Left,height=rect.Bottom-rect.Top;
       if(args.Length==3 && args[2]=="--hitcheck") {
