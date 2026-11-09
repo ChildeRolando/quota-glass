@@ -1,6 +1,6 @@
 # Quota Glass
 
-Windows 桌面订阅额度悬浮窗。支持 Command Code 与 Codex，采用可扩展的服务商适配器。
+Windows 桌面额度悬浮窗。支持 Command Code、Codex 与 OpenAI API 余额，采用可扩展的服务商适配器。
 
 ## 运行
 
@@ -35,7 +35,7 @@ Codex 使用已安装的官方 CLI `codex app-server` 的 `account/rateLimits/re
 
 Command Code 按顺序读取 `COMMAND_CODE_API_KEY` / `CMD_API_KEY`、`~/.commandcode/auth.json` 的 `apiKey`，或 CC Switch 数据库中 API 主机为 `api.commandcode.ai` 的配置。数据库只读，不运行其中的脚本。只向固定的 `https://api.commandcode.ai/alpha/billing/credits` 和 `billing/subscriptions` 发出读取请求，不跟随重定向。请求附带与核对过的 Command Code CLI 1.88.4 对应的版本头。
 
-凭据保留在主进程内存中，不写入本程序配置、不传入网页、不导出到截图或日志。窗口设置保存在 `%APPDATA%/quota-glass/settings.json`（打包版目录名称取决于 Electron 的应用名）。原客户端仍负责登录维护。
+Command Code 与 Codex 的凭据只在主进程使用，不另行保存。OpenAI 网页会话在用户主动连接后加密保存在本机，详见下方说明。凭据均不传入 HUD 页面、不导出到截图或日志。窗口设置保存在 `%APPDATA%/quota-glass/settings.json`（打包版目录名称取决于 Electron 的应用名）。原客户端仍负责其登录维护。
 
 核对依据：
 - [Codex App Server 官方文档](https://learn.chatgpt.com/docs/app-server)
@@ -81,3 +81,12 @@ Windows 11 使用透明窗口，禁用整窗 Accent、系统背景和边框。`s
 通过本机 Clash Verge / Clash Verge Rev 的命名管道（含服务模式）或本地控制接口读取当前选择。规则模式跟随最终 MATCH 策略，全局模式跟随 GLOBAL，递归定位选中的节点。延迟是 Clash 的 HTTP URL 测试结果，不是 ICMP ping；优先使用 Verge 的测速地址或策略组地址，默认 `http://cp.cloudflare.com/generate_204`。不修改节点、代理设置或配置文件；接口凭据只在主进程内使用。
 
 未运行、直连、没有唯一当前节点、超时或测速期间节点切换时显示 `ping —`，设置中说明原因，不沿用旧数值。测速独立于额度请求，不延迟额度显示。`npm run verify:clash` 需要本机 Clash Verge 正在运行，用实际节点验证显示开关和取消查询，并用明确的模拟数据检查布局。
+
+### OpenAI API 余额
+OpenAI API 与 Command Code、Codex 并列展示，显示 USD 金额，不显示虚构的余额百分比。余额使用官方账单内部接口 `/dashboard/billing/credit_grants` 的 `total_available`。普通 API Key 不被该接口接受，CC Switch 的路由 Key 不能代替网页会话。
+
+首次连接：在 HUD 设置中点击“打开扩展文件夹”，在 Chromium 浏览器的扩展管理页启用开发者模式并“加载已解压的扩展”，选择该文件夹。随后点击“连接 OpenAI 账单”，在系统浏览器登录并选择组织。扩展只监听官方余额请求，把该请求的 Authorization、组织和项目标识发送到本机回环接口；不读取密码、Cookie 或其他网站。会话使用 Electron safeStorage / Windows DPAPI 加密保存，主进程直接刷新余额。连接成功后无需保留账单标签页；会话失效时需重新登录。此接口不是稳定公开 API，服务端变更会显示未连接，不用费用或预算推算余额。
+
+连接扩展由 HUD 生成在用户数据目录，包含本机连接令牌，不应上传分享。仓库只包含无凭证模板。设置中的“断开连接”删除已保存会话，直到再次点击“连接 OpenAI 账单”才接受新会话。
+
+`npm run verify:openai` 检查三列布局、零余额、断线、尺寸和系统加密；`npm run verify:openai-extension` 使用隔离 Chromium 和明确的无效测试会话验证扩展传输，不使用真实账号余额。

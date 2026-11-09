@@ -10,10 +10,10 @@ const {execFileSync}=require('node:child_process');
  try{
   const page=await app.firstWindow();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.waitForSelector('.provider');
-  assert.equal(await page.locator('.provider').count(),2);
+  assert.equal(await page.locator('.provider').count(),3);
   assert.equal(await page.evaluate(()=>typeof require),'undefined');
   await page.evaluate(()=>window.quota.setOption('scale',1));
-  await page.waitForFunction(()=>innerWidth===552);
+  await page.waitForFunction(()=>innerWidth===787);
   const live=await page.evaluate(()=>window.quota.refresh());
   const cmd=page.locator('[data-provider="command"]');
   assert.equal(await cmd.locator('.ring-control[role="button"]').count(),3);
@@ -64,7 +64,7 @@ const {execFileSync}=require('node:child_process');
   const actual=await page.evaluate(()=>window.quota.get());
   // Deliberate offline fixture: ensure failures do not display previous quota values.
   await page.evaluate(s=>render({...s,providers:s.providers.map(p=>({...p,status:'disconnected',windows:[],balance:null,updatedAt:null,error:'网络不可用'}))}),actual);
-  assert.equal(await page.getByText('未连接',{exact:true}).count(),2);
+  assert.equal(await page.getByText('未连接',{exact:true}).count(),3);
   await page.screenshot({path:'screenshots/offline-panel.png',omitBackground:true});
   await page.evaluate(s=>render(s),actual);
   assert.deepEqual(errors,[]);

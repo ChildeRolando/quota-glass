@@ -1,0 +1,8 @@
+{
+ "manifest_version":3,"name":"Quota Glass · OpenAI 余额连接","version":"1.0.0",
+ "description":"将 OpenAI 官方账单会话交给本机 Quota Glass，由 HUD 后台读取余额。",
+ "permissions":["webRequest","storage"],
+ "host_permissions":["https://api.openai.com/*","https://platform.openai.com/*","http://127.0.0.1/*"],
+ "background":{"service_worker":"worker.js"},
+ "action":{"default_popup":"popup.html","default_title":"连接 OpenAI 余额"}
+}

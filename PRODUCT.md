@@ -8,13 +8,13 @@ web
 Electron with plain HTML/CSS/JavaScript; chosen for Windows desktop overlay and local adapters.
 
 ## Users
-The owner of this Windows computer uses Command Code and Codex subscriptions.
+The owner of this Windows computer uses Command Code and Codex subscriptions and an OpenAI API account.
 
 ## Product Purpose
 A persistent, draggable, always-on-top quota panel, visually reproducing the supplied reference.
 
 ## Capabilities and Constraints
-- Only Command Code and Codex are included. GLM and DeepSeek are excluded.
+- Command Code, Codex and official OpenAI API balance are included. GLM and DeepSeek are excluded.
 - Automatically read existing local credentials/usage. Unavailable data must say disconnected, never invented percentages.
 - Additional providers must be possible without rewriting the visual components.
 - Command Code has three selectable rings: inner 5h, middle weekly, outer monthly. Selection changes the central number, label and countdown.
@@ -24,11 +24,13 @@ A persistent, draggable, always-on-top quota panel, visually reproducing the sup
 - Panel size follows slider input continuously at 60%–140%, with Windows native edge resizing and automatic persistence.
 - Tray menu has only Show (visibility toggle), Pin, Lock, Settings and Quit.
 - Glass transparency is adjustable from 20% to 90%; text and rings remain clear.
-- Read-only account access. No model calls, purchases, resets, sign-outs, or login changes.
+- Read-only account access. No model calls, purchases, resets, sign-outs, or automated login changes. OpenAI connection uses an explicit user-completed browser login.
 
 ## Brand Commitments
-The supplied screenshot is binding: dark translucent glass, large rounded outline, white rounded progress rings, restrained grey text and horizontal provider columns. Adapt four columns to two.
+The supplied screenshot is binding: dark translucent glass, large rounded outline, white rounded progress rings, restrained grey text and horizontal provider columns. Adapt four columns to three.
 
 Tray Lock is a persistent checkbox (default off). When locked, the entire HUD ignores mouse input so underlying windows receive it. Unlocking from the tray restores HUD input.
 
 Optional Clash Verge latency extension: default off, persistent settings checkbox, measures the selected node alongside quota refresh without blocking quotas. Uses local controller only; no proxy configuration writes.
+
+OpenAI balance uses an explicitly connected browser session encrypted locally. An optional one-time browser connector observes only the official credit-grants request. The HUD then queries in the background without a browser tab. Unknown or expired sessions show disconnected.

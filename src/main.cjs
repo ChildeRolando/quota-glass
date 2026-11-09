@@ -1,17 +1,19 @@
 'use strict';
-const { app,BrowserWindow,ipcMain,Tray,Menu,nativeImage,globalShortcut,screen,net,nativeTheme } = require('electron');
+const { app,BrowserWindow,ipcMain,Tray,Menu,nativeImage,globalShortcut,screen,net,nativeTheme,shell,safeStorage } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const {providers,readProvider} = require('./providers/index.cjs');
 const {applyGlass,setGlassOpacity,stopGlass}=require('./native/glass.cjs');
+const {createOpenAiBilling}=require('./providers/openai-session.cjs');
 const {readClash}=require('./extensions/clash.cjs');
 const testing = process.argv.includes('--verify');
 if (testing) app.setPath('userData',path.join(app.getPath('temp'),'quota-glass-verify'));
+let openAiBilling;
 let panel,settings,tray,timer,busy=false,quitting=false;
 let dragOrigin=null,saveTimer;
 const panelWidth=82+235*providers.length,panelHeight=414;
 const lifetime=new AbortController();
-let options={scale:0.8,transparency:0.55,alwaysOnTop:true,locked:false,clashPing:false}, snapshots=providers.map(p=>({id:p.id,name:p.name,icon:p.icon,status:'loading',windows:[],updatedAt:null}));
+let options={scale:0.8,transparency:0.55,alwaysOnTop:true,locked:false,clashPing:false}, snapshots=providers.map(p=>({id:p.id,name:p.name,icon:p.icon,display:p.display,status:'loading',windows:[],updatedAt:null}));
 let lastAttempt=null,clash=null,pingController;
 async function refreshPing(){
   pingController?.abort();
@@ -40,10 +42,14 @@ function startupState(){
 }
 function state() {return {providers:snapshots,options,visible:panel?.isVisible()??false,busy,lastAttempt,clash,startup:startupState()};}
 function broadcast() { for(const win of [panel,settings]) if(win && !win.isDestroyed()) win.webContents.send('quota:update',state()); }
+async function refreshOpenAi(){
+ const index=providers.findIndex(p=>p.id==='openai');
+ snapshots[index]=await readProvider(providers[index],{readOpenAiBalance:()=>openAiBilling.read()});broadcast();
+}
 async function refresh() {
   if(busy) return state();
   busy=true;broadcast();void refreshPing();
-  try { snapshots=await Promise.all(providers.map(p=>readProvider(p,{fetch:net.fetch.bind(net),signal:lifetime.signal})));lastAttempt=Date.now(); }
+  try { snapshots=await Promise.all(providers.map(p=>readProvider(p,{fetch:net.fetch.bind(net),signal:lifetime.signal,readOpenAiBalance:()=>openAiBilling.read()})));lastAttempt=Date.now(); }
   finally { busy=false;broadcast(); }
   return state();
 }
@@ -136,9 +142,10 @@ else {
     if(typeof saved.clashPing==='boolean')options.clashPing=saved.clashPing;
     if(Number.isFinite(saved.x)&&Number.isFinite(saved.y)){options.x=saved.x;options.y=saved.y;}
   }catch{}
+  openAiBilling=await createOpenAiBilling({userData:app.getPath('userData'),fetch:net.fetch.bind(net),safeStorage,shell,signal:lifetime.signal,testing,onChange:()=>{if(panel&&!quitting)void refreshOpenAi();}});
   nativeTheme.themeSource='dark';
   const area=screen.getPrimaryDisplay().workArea;
-  panel=new BrowserWindow({width:442,height:331,x:options.x??area.x+area.width-470,y:options.y??area.y+40,
+  panel=new BrowserWindow({width:Math.round(panelWidth*options.scale),height:Math.round(panelHeight*options.scale),x:options.x??area.x+area.width-Math.round(panelWidth*options.scale)-28,y:options.y??area.y+40,
     title:'Quota Glass',frame:false,transparent:true,backgroundColor:'#00000000',thickFrame:true,roundedCorners:false,
     hasShadow:false,resizable:true,maximizable:false,fullscreenable:false,skipTaskbar:true,
     alwaysOnTop:options.alwaysOnTop,show:false,
@@ -164,6 +171,9 @@ else {
   ipcMain.handle('quota:get',()=>state());
   ipcMain.handle('quota:refresh',refresh);
   ipcMain.handle('quota:settings',()=>{openSettings();return true;});
+  ipcMain.handle('quota:openai-billing',()=>openAiBilling.open());
+  ipcMain.handle('quota:openai-extension',async()=>{try{return {folder:await openAiBilling.prepare()};}catch{return {error:'本机余额连接端口不可用，请重启 HUD 后重试。'};}});
+  ipcMain.handle('quota:openai-disconnect',()=>openAiBilling.disconnect());
   ipcMain.handle('quota:hide',()=>{panel.hide();return true;});
   ipcMain.on('quota:preview-option',(event,key,value)=>{if(event.sender===settings?.webContents&&setAppearance(key,value))saveSoon();});
   ipcMain.handle('quota:option',(_e,key,value)=>setOption(key,value));
@@ -176,6 +186,6 @@ else {
   await panel.loadFile(path.join(__dirname,'ui/index.html'));
   if(!testing) {refresh();timer=setInterval(refresh,60000);}
  });
- app.on('before-quit',()=>{quitting=true;lifetime.abort();clearInterval(timer);clearTimeout(saveTimer);saveOptions();stopGlass();globalShortcut.unregisterAll();tray?.destroy();});
+ app.on('before-quit',()=>{quitting=true;lifetime.abort();clearInterval(timer);clearTimeout(saveTimer);saveOptions();openAiBilling?.stop();stopGlass();globalShortcut.unregisterAll();tray?.destroy();});
  app.on('window-all-closed',()=>{if(testing)app.quit();});
 }

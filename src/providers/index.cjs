@@ -1,7 +1,11 @@
 'use strict';
 // A provider owns authentication and wire format. The renderer only gets this safe contract.
-const providers = [require('./command.cjs'),require('./codex.cjs')];
+const providers = [require('./command.cjs'),require('./codex.cjs'),require('./openai.cjs')];
 const messages = {
+  openai_login:'请先加载本地连接扩展，再在浏览器中打开 OpenAI 账单页登录。',
+  openai_expired:'OpenAI 网页会话已失效或被拒绝，请在浏览器中重新连接账单页。',
+  openai_bridge:'本机余额连接端口不可用，请重启 HUD 后重试。',
+  openai_balance:'尚未读取到官方余额，请打开账单页确认登录和组织。',
   codex_missing:'未找到 Codex CLI。安装并登录后重试。',
   codex_auth:'无法读取 Codex 订阅。请确认 Codex CLI 已使用 ChatGPT 账号登录。',
   command_missing:'未找到 Command Code 登录信息或 CC Switch 中的服务配置。',
@@ -30,7 +34,7 @@ function validateSnapshot(value) {
     source:typeof value.source === 'string' ? value.source.slice(0,100) : '' };
 }
 async function readProvider(provider,context) {
-  const base = {id:provider.id,name:provider.name,icon:provider.icon};
+  const base = {id:provider.id,name:provider.name,icon:provider.icon,display:provider.display};
   try {
     return {...base,...validateSnapshot(await provider.read(context)),status:'connected',updatedAt:Date.now(),error:null};
   } catch (error) {

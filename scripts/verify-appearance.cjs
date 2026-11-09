@@ -46,7 +46,7 @@ const path=require('node:path');
   }
   await settings.locator('#transparency').fill('0.55');await settings.locator('#transparency').dispatchEvent('change');
   await settings.locator('#scale').fill('0.8');await settings.locator('#scale').dispatchEvent('change');
-  await panel.waitForFunction(()=>Math.abs(innerWidth-442)<=1);
+  await panel.waitForFunction(()=>Math.abs(innerWidth-(82+235*document.querySelectorAll('.provider').length)*0.8)<=1);
   await new Promise(r=>setTimeout(r,100));
   const native=await app.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Quota Glass');return {handle:w.getNativeWindowHandle().readBigUInt64LE().toString(),pid:String(process.pid)};});
   const helper=process.env.QUOTA_GLASS_VERIFY_EXE?path.join(path.dirname(process.env.QUOTA_GLASS_VERIFY_EXE),'resources/app.asar.unpacked/src/native/GlassHelper.exe'):path.resolve('src/native/GlassHelper.exe');

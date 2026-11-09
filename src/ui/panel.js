@@ -30,22 +30,22 @@ function buildRing(radius,width,window,provider,index){
 function render(data){
  current=data;applyAppearance(data.options);fitPanel();container.replaceChildren();
  for(const provider of data.providers){
-  const connected=provider.status==='connected',windows=provider.windows||[],main=chosen(provider),triple=provider.id==='command';
-  const column=el('section',`provider${connected?'':' offline'}`);column.dataset.provider=provider.id;
+  const connected=provider.status==='connected',windows=provider.windows||[],main=chosen(provider),triple=provider.id==='command',balanceOnly=provider.display==='balance';
+  const column=el('section',`provider${connected?'':' offline'}${balanceOnly?' balance-provider':''}`);column.dataset.provider=provider.id;
   const header=el('h2',provider.icon);const logo=el('span');logo.innerHTML=icons[provider.icon]||icons.generic;header.append(logo,el('span','',provider.name));
   const meter=el('div',`meter-button${triple?' triple':windows.length>1?' dual':''}`);
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 200 200');svg.setAttribute('class','rings');svg.setAttribute('aria-label',`${provider.name} 额度周期选择`);
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 200 200');svg.setAttribute('class','rings');svg.setAttribute('aria-label',`${provider.name} ${balanceOnly?'余额':'额度周期选择'}`);
   if(triple){
    ['monthly','weekly','fiveHour'].forEach((id,i)=>svg.append(buildRing(90-i*18,11,windows.find(w=>w.id===id),provider,i)));
   }else{
    (windows.length?windows:[null]).slice(0,3).forEach((w,i)=>svg.append(buildRing(90-i*20,windows.length>1?13:18,w,provider,i)));
   }
   const center=el('div','meter-center');
-  center.setAttribute('aria-label',`${provider.name} 当前${main?.label||'周期'}剩余额度`);
+  center.setAttribute('aria-label',balanceOnly?`${provider.name} 余额`:`${provider.name} 当前${main?.label||'周期'}剩余额度`);
   const known=main&&Number.isFinite(main.remaining);
-  center.append(el('span','meter-value',known?percent(main.remaining):!triple&&provider.balance?provider.balance.value.toFixed(1):'—'),el('span','meter-period',connected?periodLabel(main)||provider.balance?.unit||'周期':provider.status==='loading'?'读取中':'未连接'));
+  center.append(el('span','meter-value',balanceOnly&&connected&&provider.balance?`$${provider.balance.value.toFixed(2)}`:known?percent(main.remaining):'—'),el('span','meter-period',balanceOnly&&connected?'余额':connected?periodLabel(main)||'周期':provider.status==='loading'?'读取中':'未连接'));
   meter.append(svg,center);
-  const detail=el('p','countdown',connected?known?countdown(main.resetsAt):'额度暂不可用':provider.status==='loading'?'正在连接':'点击设置查看原因');
+  const detail=el('p','countdown',connected?balanceOnly?(provider.balance?.unit||'USD'):known?countdown(main.resetsAt):'额度暂不可用':provider.status==='loading'?'正在连接':'点击设置查看原因');
   column.append(header,meter,detail);container.append(column);
  }
  document.getElementById('freshness').textContent=freshness(data);
@@ -57,7 +57,7 @@ document.getElementById('refresh').addEventListener('click',()=>window.quota.ref
 document.getElementById('settings').addEventListener('click',()=>window.quota.settings());
 document.getElementById('hide').addEventListener('click',()=>window.quota.hide());
 function fitPanel(){
- const width=82+235*(current?.providers.length||2),surface=document.querySelector('.glass');
+ const width=82+235*(current?.providers.length||3),surface=document.querySelector('.glass');
  surface.style.width=width+'px';surface.style.transform=`scale(${innerWidth/width},${innerHeight/414})`;
 }
 function applyAppearance(options){document.documentElement.style.setProperty('--glass-density',String(1-(options.transparency??0.55)));}

@@ -1,0 +1,30 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
+const {createOpenAiBilling,normalizeCredits,validateSession,API_URL}=require('../src/providers/openai-session.cjs');
+const safeStorage={isAsyncEncryptionAvailable:async()=>true,encryptStringAsync:async s=>Buffer.from('encrypted:'+Buffer.from(s).toString('base64')),decryptStringAsync:async b=>({result:Buffer.from(b.toString().slice(10),'base64').toString()})};
+const sample={authorization:'Bearer sess-fixture-only',organization:'org-fixture',project:'',source:API_URL};
+test('official balance uses total_available, including zero, without deriving from budget or usage',()=>{
+ assert.equal(normalizeCredits({total_available:0,total_granted:200}).balance.value,0);
+ assert.equal(normalizeCredits({total_available:73.85}).balance.unit,'USD');
+ assert.throws(()=>normalizeCredits({total_granted:100,total_used:20}),/openai_balance/);
+ assert.throws(()=>normalizeCredits({total_available:'100'}),/openai_balance/);
+ assert.throws(()=>validateSession({...sample,authorization:'Bearer sk-test'}));
+ assert.throws(()=>validateSession({...sample,source:'https://other.example/dashboard/billing/credit_grants'}));
+});
+test('loopback connector authenticates imports, persists across restart, and disconnect rejects background reimport',async t=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'quota-openai-bridge-'));
+ let changed=0;const calls=[];
+ const options={userData:root,testing:true,safeStorage,shell:{openPath:async()=>'',openExternal:async()=>{}},onChange:()=>changed++,fetch:async(url,options)=>{calls.push({url,options});return {status:200,ok:true,json:async()=>({total_available:73.85,secret:'must not project'})};}};
+ let bridge=await createOpenAiBilling(options);t.after(async()=>{bridge.stop();await fs.rm(root,{recursive:true,force:true});});
+ const token=JSON.parse(await fs.readFile(path.join(root,'openai-bridge.json'),'utf8')).token;
+ const send=(data,auth=token,origin)=>fetch(`http://127.0.0.1:${bridge.port}/session`,{method:'POST',headers:{Authorization:'Bearer '+auth,'Content-Type':'application/json',...(origin?{Origin:origin}:{})},body:JSON.stringify(data)});
+ assert.equal((await send(sample,'bad')).status,403);
+ assert.equal((await send(sample,token,'https://other.example')).status,403);
+ assert.equal((await send({...sample,source:'https://other.example/'})).status,400);
+ assert.equal((await send(sample)).status,200);assert.equal(changed,1);
+ assert.ok(!(await fs.readFile(path.join(root,'openai-session.enc'),'utf8')).includes(sample.authorization));
+ const value=await bridge.read();assert.equal(value.balance.value,73.85);assert.ok(!JSON.stringify(value).includes('secret'));
+ assert.equal(calls[0].url,API_URL);assert.equal(calls[0].options.headers.Authorization,sample.authorization);
+ await new Promise(r=>{bridge.stop();setImmediate(r);});bridge=await createOpenAiBilling(options);
+ assert.equal((await bridge.read()).balance.value,73.85);
+ await bridge.disconnect();assert.equal((await send(sample)).status,409);await assert.rejects(bridge.read(),/openai_login/);
+});

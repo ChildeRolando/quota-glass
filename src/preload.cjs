@@ -3,6 +3,9 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('quota',Object.freeze({
   get:() => ipcRenderer.invoke('quota:get'),
   refresh:() => ipcRenderer.invoke('quota:refresh'),
+  openAiExtension:()=>ipcRenderer.invoke('quota:openai-extension'),
+  disconnectOpenAi:()=>ipcRenderer.invoke('quota:openai-disconnect'),
+  openAiBilling:()=>ipcRenderer.invoke('quota:openai-billing'),
   settings:() => ipcRenderer.invoke('quota:settings'),
   hide:() => ipcRenderer.invoke('quota:hide'),
   drag:phase => ipcRenderer.send('quota:drag',phase),

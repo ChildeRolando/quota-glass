@@ -10,6 +10,12 @@ function render(data){
    p.windows.forEach((w,i)=>{const row=el('div','window');const ring=p.id==='command'?({monthly:'外圈',weekly:'中圈',fiveHour:'内圈'}[w.id]):i===0?'外环':i===1?'内环':'附加周期';const left=el('span','',`${w.label} · ${ring} ${Number.isFinite(w.remaining)?'剩余 '+w.remaining.toFixed(1)+'%':'暂不可用'}`);row.append(left,el('small','',Number.isFinite(w.remaining)?countdown(w.resetsAt):'月额度或订阅暂不可用'));section.append(row);if(w.basis)section.append(el('p','source',w.basis));});
    if(p.balance)section.append(el('p','balance',`余额 ${p.balance.value.toFixed(2)} ${p.balance.unit}`));
   }else section.append(el('p','error',p.error||'正在读取本地登录信息…'));
+  if(p.id==='openai'){
+   const install=el('button','','打开扩展文件夹');install.addEventListener('click',async()=>{const result=await window.quota.openAiExtension();if(result.error)document.getElementById('status').textContent=result.error;});section.append(install);
+   const connect=el('button','',p.status==='connected'?'打开 OpenAI 账单':'连接 OpenAI 账单');connect.addEventListener('click',()=>window.quota.openAiBilling());section.append(connect);
+   section.append(el('p','source','首次：在浏览器扩展管理页选择“加载已解压的扩展”，选中上述文件夹，然后打开官方账单页登录。会话加密保存在本机；连接后由 HUD 后台查询，过期时重新登录。'));
+   if(p.status==='connected'){const disconnect=el('button','','断开连接');disconnect.addEventListener('click',()=>window.quota.disconnectOpenAi());section.append(disconnect);}
+  }
   root.append(section);
  }
  document.getElementById('top').checked=data.options.alwaysOnTop;

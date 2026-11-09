@@ -11,6 +11,8 @@
     "verify": "node scripts/verify.cjs",
     "verify:settings": "node scripts/verify-settings.cjs",
     "verify:appearance": "node scripts/verify-appearance.cjs",
+    "verify:openai-extension": "node scripts/verify-openai-extension.cjs",
+    "verify:openai": "node scripts/verify-openai.cjs",
     "verify:clash": "node scripts/verify-clash.cjs",
     "verify:lock": "node scripts/verify-lock.cjs",
     "verify:topmost": "node scripts/verify-topmost.cjs",
