@@ -15,7 +15,7 @@ const {_electron:electron}=require('playwright');const assert=require('node:asse
    assert.equal(await card.locator('.meter-period').innerText(),'余额');assert.equal(await card.locator('.countdown').innerText(),'USD');
    assert.equal(await card.locator('[role=button]').count(),0);
   }
-  for(const scale of [0.6,0.8,1.4]){
+  for(const scale of [0.1,0.25,0.6,0.8,1.4]){
    await page.evaluate(value=>window.quota.setOption('scale',value),scale);
    await page.waitForFunction(value=>Math.abs(innerWidth-787*value)<=1,scale);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
@@ -28,6 +28,6 @@ const {_electron:electron}=require('playwright');const assert=require('node:asse
   const [settings]=await Promise.all([app.waitForEvent('window'),page.evaluate(()=>window.quota.settings())]);
   await settings.getByRole('button',{name:'连接 OpenAI 账单'}).waitFor();
   await settings.screenshot({path:'screenshots/openai-settings.png'});
-  console.log('OpenAI layout passed: three peer providers, USD balance incl. zero, no fake percentage ring, unknown on disconnect, settings connection action, 60–140% layout. Live login/balance is a separate acceptance step.');
+  console.log('OpenAI layout passed: three peer providers, USD balance incl. zero, no fake percentage ring, unknown on disconnect, settings connection action, 10–140% layout. Live login/balance is a separate acceptance step.');
  }finally{await app.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -51,7 +51,7 @@ const {execFileSync}=require('node:child_process');
   await preferences.locator('#top').uncheck();
   assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Quota Glass').isAlwaysOnTop()),false);
   await preferences.locator('#top').check();
-  for(const scale of ['0.6','0.73','0.8','1','1.17','1.4']){
+  for(const scale of ['0.1','0.25','0.6','0.73','0.8','1','1.17','1.4']){
    await preferences.locator('#scale').fill(scale);
    await preferences.locator('#scale').dispatchEvent('change');
    await page.waitForFunction(async s=>Math.abs((await window.quota.get()).options.scale-s)<0.003,Number(scale));

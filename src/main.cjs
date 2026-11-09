@@ -65,7 +65,7 @@ function resizePanel() {
 }
 function setAppearance(key,value){
   if(!Number.isFinite(value))return false;
-  if(key==='scale'&&value>=0.6&&value<=1.4){options.scale=value;resizePanel();}
+  if(key==='scale'&&value>=0.1&&value<=1.4){options.scale=value;resizePanel();}
   else if(key==='transparency'&&value>=0.2&&value<=0.9){
     options.transparency=value;setGlassOpacity(panel,0.28*(1-value)/0.45);
   }else return false;
@@ -135,7 +135,7 @@ else {
  app.on('second-instance',()=>{panel?.show();panel?.focus();});
  app.whenReady().then(async()=>{
   try {const saved=JSON.parse(fs.readFileSync(configFile(),'utf8'));
-    if(Number.isFinite(saved.scale)&&saved.scale>=0.6&&saved.scale<=1.4)options.scale=saved.scale;
+    if(Number.isFinite(saved.scale)&&saved.scale>=0.1&&saved.scale<=1.4)options.scale=saved.scale;
     if(Number.isFinite(saved.transparency)&&saved.transparency>=0.2&&saved.transparency<=0.9)options.transparency=saved.transparency;
     if(typeof saved.alwaysOnTop==='boolean')options.alwaysOnTop=saved.alwaysOnTop;
     if(typeof saved.locked==='boolean')options.locked=saved.locked;
@@ -151,11 +151,11 @@ else {
     alwaysOnTop:options.alwaysOnTop,show:false,
     webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
   secureWindow(panel);
-  panel.setMinimumSize(Math.round(panelWidth*0.6),Math.round(panelHeight*0.6));
+  panel.setMinimumSize(Math.round(panelWidth*0.1),Math.round(panelHeight*0.1));
   panel.setMaximumSize(Math.round(panelWidth*1.4),Math.round(panelHeight*1.4));
   panel.setAspectRatio(panelWidth/panelHeight);
   panel.on('resize',()=>{
-    const bounds=panel.getBounds();options.scale=Math.max(0.6,Math.min(1.4,bounds.width/panelWidth));
+    const bounds=panel.getBounds();options.scale=Math.max(0.1,Math.min(1.4,bounds.width/panelWidth));
     appearance();saveSoon();
   });
   panel.on('close',e=>{if(!quitting&&!testing){e.preventDefault();panel.hide();}});

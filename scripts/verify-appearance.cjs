@@ -27,7 +27,7 @@ const path=require('node:path');
   const samples=await settings.evaluate(async()=>{
    const slider=document.getElementById('scale'),result=[];
    for(let i=0;i<28;i++){
-    const requested=0.65+i*0.02317;slider.value=String(requested);slider.dispatchEvent(new Event('input',{bubbles:true}));
+    const requested=0.1+i*0.04517;slider.value=String(requested);slider.dispatchEvent(new Event('input',{bubbles:true}));
     await new Promise(r=>setTimeout(r,20));
     result.push({requested,actual:(await window.quota.get()).options.scale});
    }

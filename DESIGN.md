@@ -3,7 +3,7 @@
 Visual authority: user's screenshot. Operate mode. No new visual identity is being invented.
 
 Reference panel: approximately 1020 x 480 for four providers; circle diameter 198, header size 34, main figure 56, cycle 26, countdown 30. Horizontal pitch 235.
-Three-provider version: 787 x 414; centers 159 and 394; preserve header and circle anchors while reducing space below the countdown. Default desktop scale is 80%, with a continuous 60–140% slider in settings, without fixed percentage steps; native edge resizing preserves the aspect ratio.
+Three-provider version: 787 x 414; centers 159 and 394; preserve header and circle anchors while reducing space below the countdown. Default desktop scale is 80%, with a continuous 10–140% slider in settings, without fixed percentage steps; native edge resizing preserves the aspect ratio.
 
 Dark blue-black glass, double inset edge, 76px outer radius. Foreground #ffffff; secondary #bec6d3; muted #a2acbc. White ring caps. All unselected rings use the same 58% white; selected/hover rings and provider titles use full white.
 Use the installed Segoe UI / Microsoft YaHei family, appropriate for the screenshot's system typography. Use compact Command Code lettering on one line, without replacing it with Claude.
