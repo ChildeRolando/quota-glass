@@ -90,3 +90,5 @@ OpenAI API 与 Command Code、Codex 并列展示，显示 USD 金额，不显示
 连接扩展由 HUD 生成在用户数据目录，包含本机连接令牌，不应上传分享。仓库只包含无凭证模板。设置中的“断开连接”删除已保存会话，直到再次点击“连接 OpenAI 账单”才接受新会话。
 
 `npm run verify:openai` 检查三列布局、零余额、断线、尺寸和系统加密；`npm run verify:openai-extension` 使用隔离 Chromium 和明确的无效测试会话验证扩展传输，不使用真实账号余额。
+
+OpenAI API 服务图标使用 [OpenAI 官方标志包](https://cdn.openai.com/brand/openai-logos.zip) 中的白色 Blossom SVG；标志归 OpenAI 所有，用于识别对应服务。

@@ -1,6 +1,6 @@
 'use strict';
 const icons={
- openai:'<svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 10c-6-4-13 3-5 6s1 10-5 6m5-15v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+ openai:'<img class="brand-icon" src="openai-blossom.svg" alt="" aria-hidden="true">',
  command:'<svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="m5 8 9 8-9 8M18 24h10" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  codex:'<svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M13 2c-4 0-5 4-6 7-4 1-6 5-5 9 0 3 3 5 6 5 1 5 5 8 9 7 3-1 4-4 6-6 4 0 7-3 7-7 0-5-4-8-8-8-2-4-5-7-9-7Z"/><path d="m11 12 4 4-4 4m7 0h5" fill="none" stroke="#283445" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  generic:'<svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="5" width="22" height="22" rx="7" fill="none" stroke="currentColor" stroke-width="2"/></svg>'

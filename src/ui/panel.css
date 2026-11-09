@@ -26,3 +26,4 @@ nav button:hover,nav button:focus-visible{background:rgba(219,230,247,.1);color:
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 
 .provider h2.openai{font-size:28px;gap:9px}.balance-provider .meter-center{width:180px}.balance-provider .meter-value{font-size:42px}.balance-provider .ring-track{stroke-width:4}.balance-provider .ring-hit{pointer-events:none}
+.provider h2.openai .brand-icon{transform:scale(1.7)}
